@@ -44,7 +44,7 @@ namespace Agro.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await _userManager.FindByEmailAsync(model.Email.Trim());
 
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Senha))
             {

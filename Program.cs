@@ -1,4 +1,4 @@
-using Agro.Dados;
+﻿using Agro.Dados;
 using Agro.Entidades;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -8,12 +8,29 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// ✅ CORS configurado corretamente
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:4200",
+            "https://fazenda.scuderiacalango.com.br"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
+    });
+});
+
+builder.Services.AddAuthorization(); // ✅ Movido para o lugar certo
 builder.Services.AddOpenApi();
+
 builder.Services.AddDbContext<Contexto>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<Contexto>()
     .AddDefaultTokenProviders();
@@ -34,10 +51,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
-
 });
-
-
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -48,34 +62,33 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
+app.UseHttpsRedirection();
 
-builder.Services.AddAuthorization();
+app.UseCors("CorsPolicy"); // ✅ Ordem correta
 
-builder.Services.AddEndpointsApiExplorer();
-
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseAuthentication();
-app.UseAuthorization();
+
 app.MapControllers();
 
-
-// Configure the HTTP request pipeline.
+// Swagger local dev
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
+// Rota de teste opcional
 app.MapGet("/weatherforecast", () =>
 {
+    var summaries = new[]
+    {
+        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm",
+        "Balmy", "Hot", "Sweltering", "Scorching"
+    };
+
     var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
