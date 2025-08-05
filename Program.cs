@@ -1,4 +1,5 @@
-﻿using Agro.Dados;
+﻿using Agro.API.Servicos;
+using Agro.Dados;
 using Agro.Entidades;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -30,6 +31,8 @@ builder.Services.AddDbContext<Contexto>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IDespesaCategoriaService, DespesaCategoriaService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<Contexto>()
