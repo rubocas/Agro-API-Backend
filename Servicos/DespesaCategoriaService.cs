@@ -1,5 +1,6 @@
 ﻿using Agro.API.Entidades;
 using Agro.Dados;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -16,7 +17,7 @@ namespace Agro.API.Servicos
 
         public async Task<IEnumerable<DespesaCategoria>> GetAllAsync()
         {
-            return await _context.DespesasCategorias.AsNoTracking().ToListAsync();
+            return await _context.DespesasCategorias.AsNoTracking().OrderBy(n => n.Nome).ToListAsync();
         }
 
         public async Task<DespesaCategoria?> GetByIdAsync(Guid id)
@@ -27,6 +28,13 @@ namespace Agro.API.Servicos
         public async Task<DespesaCategoria> CreateAsync(DespesaCategoria categoria)
         {
             categoria.Id = Guid.NewGuid();
+
+            var existeCategoria = _context.DespesasCategorias.FirstOrDefault(c => c.Nome == categoria.Nome);
+            if(existeCategoria != null)
+            {
+                return null;
+            }
+
             _context.DespesasCategorias.Add(categoria);
             await _context.SaveChangesAsync();
             return categoria;

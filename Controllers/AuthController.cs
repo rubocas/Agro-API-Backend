@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Agro.API.Entidades;
+using Agro.Entidades;
+using Agro.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Agro.Entidades;
-using Agro.Models;
 
 namespace Agro.Controllers
 {
@@ -14,13 +15,17 @@ namespace Agro.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
+        private readonly ILogger<AuthController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly ILogEventoService _logService;
 
-        public AuthController(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public AuthController(UserManager<ApplicationUser> userManager, IConfiguration configuration, ILogger<AuthController> logger, ILogEventoService logService)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _logger = logger;
+            _logService = logService;
         }
 
         [HttpPost("register")]
@@ -46,6 +51,18 @@ namespace Agro.Controllers
         {
             var user = await _userManager.FindByEmailAsync(model.Email.Trim());
 
+            if (user == null)
+            {
+                // Salvar log de sucesso
+                await _logService.SalvarLogAsync(new LogEvento
+                {
+                    Level = "Information",
+                    Message = $"Usuário {model.Email} autenticado com sucesso."
+                });
+
+                return Unauthorized();
+            }
+
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Senha))
             {
                 var authClaims = new List<Claim>
@@ -68,6 +85,16 @@ namespace Agro.Controllers
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     expiration = token.ValidTo
+                });
+            }
+
+            if (!await _userManager.CheckPasswordAsync(user, model.Senha))
+            {
+
+                await _logService.SalvarLogAsync(new LogEvento
+                {
+                    Level = "Warning",
+                    Message = $"Falha na autenticação para o email {model.Email}."
                 });
             }
 
