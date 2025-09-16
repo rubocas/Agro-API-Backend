@@ -67,6 +67,7 @@ try
     builder.Services.AddScoped<IDespesaCategoriaService, DespesaCategoriaService>();
     builder.Services.AddScoped<IAnoSafraService, AnoSafraService>();
     builder.Services.AddScoped<ILogEventoService, LogEventoService>();
+    builder.Services.AddScoped<IDespesaService, DespesaService>();
 
     builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
         .AddEntityFrameworkStores<Contexto>()
