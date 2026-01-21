@@ -25,11 +25,11 @@ namespace Agro.API.Servicos
             return await _context.DespesasCategorias.FindAsync(id);
         }
 
-        public async Task<DespesaCategoria> CreateAsync(DespesaCategoria categoria)
+        public async Task<DespesaCategoria?> CreateAsync(DespesaCategoria categoria)
         {
             categoria.Id = Guid.NewGuid();
 
-            var existeCategoria = _context.DespesasCategorias.FirstOrDefault(c => c.Nome == categoria.Nome);
+            var existeCategoria = await _context.DespesasCategorias.FirstOrDefaultAsync(c => c.Nome == categoria.Nome);
             if(existeCategoria != null)
             {
                 return null;

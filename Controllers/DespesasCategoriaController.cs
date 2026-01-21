@@ -43,6 +43,10 @@ namespace Agro.API.Controllers
         public async Task<IActionResult> Create([FromBody] DespesaCategoria categoria)
         {
             var created = await _service.CreateAsync(categoria);
+            if (created == null)
+            {
+                return BadRequest("Categoria já existe.");
+            }
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
