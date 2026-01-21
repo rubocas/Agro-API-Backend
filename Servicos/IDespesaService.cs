@@ -7,4 +7,6 @@ public interface IDespesaService
     Task<Despesa> CreateAsync(Despesa despesa);
     Task<bool> UpdateAsync(Guid id, Despesa despesa);
     Task<bool> DeleteAsync(Guid id);
+    Task<IEnumerable<Despesa>> GetByDataAtualAsync();
+    Task<IEnumerable<Despesa>> GetByFiltroAsync(DateTime dataInicio, DateTime dataFim, Guid? categoriaId, Guid? anoSafraId);
 }

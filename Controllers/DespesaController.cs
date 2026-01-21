@@ -32,6 +32,29 @@ namespace Agro.API.Controllers
             return Ok(despesa);
         }
 
+        [HttpGet("data-atual")]
+        public async Task<IActionResult> GetByDataAtual()
+        {
+            var despesas = await _service.GetByDataAtualAsync();
+            return Ok(despesas);
+        }
+
+        [HttpGet("filtro")]
+        public async Task<IActionResult> GetByFiltro(
+            [FromQuery] DateTime dataInicio,
+            [FromQuery] DateTime dataFim,
+            [FromQuery] Guid? categoriaId,
+            [FromQuery] Guid? anoSafraId)
+        {
+            if (dataInicio > dataFim)
+            {
+                return BadRequest("A data de início não pode ser maior que a data de fim.");
+            }
+
+            var despesas = await _service.GetByFiltroAsync(dataInicio, dataFim, categoriaId, anoSafraId);
+            return Ok(despesas);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] DespesaDto despesaDTO)
         {

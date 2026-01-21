@@ -18,7 +18,8 @@ namespace Agro.Models
                 AnoSafraId = despesaDto.anoSafraId,
                 Valor = despesaDto.valor,
                 Descricao = despesaDto.descricao,
-                DespesaCategoriaId = despesaDto.despesaCategoriaId
+                DespesaCategoriaId = despesaDto.despesaCategoriaId,
+                DataRegistro = despesaDto.dataRegistro
 
             };
             

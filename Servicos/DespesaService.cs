@@ -58,4 +58,39 @@ public class DespesaService : IDespesaService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<IEnumerable<Despesa>> GetByDataAtualAsync()
+    {
+        var startOfDay = DateTime.Today;
+        var startOfNextDay = startOfDay.AddDays(1);
+
+        return await _context.Despesas
+            .Include(d => d.AnoSafra)
+            .Include(d => d.DespesaCategoria)
+            .Where(d => d.DataRegistro >= startOfDay && d.DataRegistro < startOfNextDay)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Despesa>> GetByFiltroAsync(DateTime dataInicio, DateTime dataFim, Guid? categoriaId, Guid? anoSafraId)
+    {
+        var start = dataInicio.Date;
+        var endExclusive = dataFim.Date.AddDays(1);
+
+        var query = _context.Despesas
+            .Include(d => d.AnoSafra)
+            .Include(d => d.DespesaCategoria)
+            .Where(d => d.DataRegistro >= start && d.DataRegistro < endExclusive);
+
+        if (categoriaId.HasValue)
+        {
+            query = query.Where(d => d.DespesaCategoriaId == categoriaId.Value);
+        }
+
+        if (anoSafraId.HasValue)
+        {
+            query = query.Where(d => d.AnoSafraId == anoSafraId.Value);
+        }
+
+        return await query.ToListAsync();
+    }
 }
